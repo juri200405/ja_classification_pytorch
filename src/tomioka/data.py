@@ -17,7 +17,8 @@ def normalize_string(s):
     return s
 
 def preprocess(me, sample):
-    tokens = ' 。 '.join(me.parse(s.strip()).strip() for s in re.split(r'[。\n]+', normalize_string(sample["data"])))
+    wakati = ' 。 '.join(me.parse(s.strip()).strip() for s in re.split(r'[。\n]+', normalize_string(sample["data"])))
+    tokens = re.split(r' ', wakati )
     return {"tokens": tokens, "label": int(sample["label"])}
 
 def build(dpath, savedir):
