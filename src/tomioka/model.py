@@ -30,3 +30,6 @@ class Classifier(nn.Module):
         out = self.final_fc(out)
 
         return out
+    
+    def init_hidden(self, inp):
+        return torch.zeros(1, inp.size(0), self.hid_n)
