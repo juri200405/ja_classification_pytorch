@@ -95,7 +95,8 @@ def build(dpath, savedir):
     test_data_index = [postprocess(token2index, token2index[UNK_TOKEN], item) for item in test_data]
     with open(savedir / 'dataset.test.token.pkl', 'wb') as f:
         pickle.dump(test_data_index, f)
-
+    
+    print(train_data_index[0])
 
 if __name__ == "__main__":
-    build(Path("../../datas"), Path("../../datas/datasets"))
+    build(Path("./datas"), Path("./datas/datasets"))
