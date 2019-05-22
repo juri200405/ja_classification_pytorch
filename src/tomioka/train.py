@@ -59,7 +59,7 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
         tqdm.write(str(np.mean(losses)))
     
     test_dataset = pickle.load(open(dataset_dir / "dataset.test.token.pkl", 'rb'))
-    test_dataloader = get_dataloader(test_dataset, batchsize, pad_index, fix_max_len=fix_max_len)
+    test_dataloader = get_dataloader(test_dataset, batchsize, pad_index, fix_max_len=fix_max_len, shuffle=False)
     pred_labels = []
     
     model.eval()
