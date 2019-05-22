@@ -29,7 +29,8 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
     train_dataloader = get_dataloader(train_dataset, batchsize, pad_index, fix_max_len=fix_max_len)
 
     model = Classifier(voc_num, pad_index, hid_n, emb_size, dropout=0)
-    model = model.to(device)
+    if device == 'cuda':
+        model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
@@ -45,7 +46,8 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
                 inputs = labels.to(device)
 
             hid = model.init_hidden(inputs)
-            hid = hid.to(device)
+            if device == 'cuda':
+                hid = hid.to(device)
 
             out = model(inputs, hid)
             loss = loss_func(out, labels)
@@ -55,6 +57,25 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
             optimizer.step()
             losses.append(loss.item())
         tqdm.write(str(np.mean(losses)))
+    
+    test_dataset = pickle.load(open(dataset_dir / "dataset.test.token.pkl", 'rb'))
+    test_dataloader = get_dataloader(test_dataset, batchsize, pad_index, fix_max_len=fix_max_len)
+    pred_labels = []
+    
+    model.eval()
+    with torch.no_grad():
+        for _, inputs in test_dataloader:
+            if device == 'cuda':
+                inputs = inputs.to(device)
+            hid = model.init_hidden(inputs)
+            if device == 'cuda':
+                hid = hid.to(device)
+
+            out = model(inputs, hid)
+            pred_labels += map(str, out.argmax(dim=1).tolist())
+
+    with open('pred.txt', 'w') as f:
+        f.write('\n'.join(pred_labels))
 
 if __name__ == "__main__":
     run(Path("./datas/datasets"))
