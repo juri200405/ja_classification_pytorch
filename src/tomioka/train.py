@@ -20,6 +20,7 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
     token2index, words = pickle.load(open(dataset_dir / "vocab.pkl", 'rb'))
 
     device = torch.device('cuda' if use_cuda else 'cpu')
+    print(device)
 
     voc_num = len(token2index)
     pad_index = token2index[PAD_TOKEN]
@@ -29,7 +30,7 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
     train_dataloader = get_dataloader(train_dataset, batchsize, pad_index, fix_max_len=fix_max_len)
 
     model = Classifier(voc_num, pad_index, hid_n, emb_size, dropout=0)
-    if device == 'cuda':
+    if device == torch.device('cuda'):
         model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -41,12 +42,12 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
     for i_epoch in tqdm(range(1, epoch + 1), total=epoch):
         losses = []
         for labels, inputs in train_dataloader:
-            if device == 'cuda':
+            if device == torch.device('cuda'):
                 labels = labels.to(device)
-                inputs = labels.to(device)
+                inputs = inputs.to(device)
 
             hid = model.init_hidden(inputs)
-            if device == 'cuda':
+            if device == torch.device('cuda'):
                 hid = hid.to(device)
 
             out = model(inputs, hid)
@@ -65,10 +66,10 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
     model.eval()
     with torch.no_grad():
         for _, inputs in test_dataloader:
-            if device == 'cuda':
+            if device == torch.device('cuda'):
                 inputs = inputs.to(device)
             hid = model.init_hidden(inputs)
-            if device == 'cuda':
+            if device == torch.device('cuda'):
                 hid = hid.to(device)
 
             out = model(inputs, hid)
@@ -78,4 +79,4 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
         f.write('\n'.join(pred_labels))
 
 if __name__ == "__main__":
-    run(Path("./datas/datasets"))
+    run(Path("./datas/datasets"), use_cuda=True)
