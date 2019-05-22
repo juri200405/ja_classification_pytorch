@@ -40,8 +40,9 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
     for i_epoch in tqdm(range(1, epoch + 1), total=epoch):
         losses = []
         for labels, inputs in train_dataloader:
-            labels = labels.to(device)
-            inputs = labels.to(device)
+            if device == 'cuda':
+                labels = labels.to(device)
+                inputs = labels.to(device)
 
             hid = model.init_hidden(inputs)
             hid = hid.to(device)

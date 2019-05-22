@@ -11,7 +11,7 @@ def get_collate_fn(pad_index, fix_max_len=None):
 
         for ins in batch:
             tokens_list.append(ins["tokens"])
-            labels.append(ins["label"])
+            labels.append(int(ins["label"]))
         
         if not fix_max_len:
             max_len = max(len(tokens) for tokens in tokens_list)
