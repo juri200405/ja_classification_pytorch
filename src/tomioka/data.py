@@ -96,6 +96,5 @@ def build(dpath, savedir):
     with open(savedir / 'dataset.test.token.pkl', 'wb') as f:
         pickle.dump(test_data_index, f)
 
-
 if __name__ == "__main__":
-    build(Path("../../datas"), Path("../../datas/datasets"))
+    build(Path("./datas"), Path("./datas/datasets"))
