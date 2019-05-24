@@ -3,15 +3,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Classifier(nn.Module):
-    def __init__(self, voc_n, pad_index, hid_n, emb_size, dropout=0.5, class_n=6):
+    def __init__(self, voc_n, pad_index, hid_n, emb_size, dropout=0.5, class_n=6, is_bidirection=False):
         super().__init__()
         self.hid_n = hid_n
         self.emb_size = emb_size
         self.dropout = dropout
         self.class_n = class_n
+        self.is_bidirection = is_bidirection
 
         self.embedding = nn.Embedding(voc_n, emb_size, padding_idx=pad_index)
-        self.gru = nn.GRU(emb_size, hid_n, batch_first=True, dropout=dropout)
+        self.gru = nn.GRU(emb_size, hid_n, batch_first=True, dropout=dropout, bidirectional=is_bidirection)
         self.fc1 = nn.Linear(hid_n, 500)
         self.fc2 = nn.Linear(500, 300)
         self.fc3 = nn.Linear(300, 200)
@@ -32,4 +33,7 @@ class Classifier(nn.Module):
         return out
     
     def init_hidden(self, inp):
-        return torch.zeros(1, inp.size(0), self.hid_n)
+        if self.is_bidirection:
+            return torch.zeros(1 * 2, inp.size(0), self.hid_n)
+        else:
+            return torch.zeros(1 * 1, inp.size(0), self.hid_n)
