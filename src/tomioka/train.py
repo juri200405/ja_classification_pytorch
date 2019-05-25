@@ -30,7 +30,7 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
 
     train_dataloader = get_dataloader(train_dataset, batchsize, pad_index, fix_max_len=fix_max_len)
 
-    model = Classifier(voc_num, pad_index, hid_n, emb_size, dropout=0, is_bidirection=False)
+    model = Classifier(voc_num, pad_index, hid_n, emb_size, dropout=0, is_bidirection=True)
     model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -46,7 +46,6 @@ def run(dataset_dir, hid_n=128, emb_size=128, batchsize=128, epoch=10, lr=0.01, 
             inputs = inputs.to(device)
 
             hid = model.init_hidden(inputs)
-            print(hid.size())
             hid = hid.to(device)
 
             out = model(inputs, hid)
