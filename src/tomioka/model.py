@@ -13,7 +13,7 @@ class Classifier(nn.Module):
 
         self.embedding = nn.Embedding(voc_n, emb_size, padding_idx=pad_index)
         self.gru = nn.GRU(emb_size, hid_n, batch_first=True, dropout=dropout, bidirectional=is_bidirection)
-        self.fc1 = nn.Linear(hid_n, 500)
+        self.fc1 = nn.Bilinear(hid_n, hid_n, 500)
         self.fc2 = nn.Linear(500, 300)
         self.fc3 = nn.Linear(300, 200)
         self.final_fc = nn.Linear(200, class_n)
@@ -22,9 +22,12 @@ class Classifier(nn.Module):
     def forward(self, inp, hid):
         inp = self.embedding(inp)
         _, final_hid = self.gru(inp, hid)
-        final_hid = final_hid.squeeze(0)
-
-        out = F.relu(self.fc1(final_hid))
+        if self.is_bidirection:
+            hid_tuple = torch.unbind(final_hid)
+        else:
+            hid_tuple = (final_hid.squeeze(0), final_hid.squeeze(0))
+        
+        out = F.relu(self.fc1(hid_tuple[0], hid_tuple[1]))
         out = F.relu(self.fc2(out))
         out = F.relu(self.fc3(out))
 
